@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="form">
+        公開したAPIのURL<br>
+        <textarea rows="4" cols="40" id="Url"></textarea><br>
+        <button type="button" onclick="trigger()">読み込み</button>
+        <p id="progress"></p>
+    </div>
+    <div id="table">
+        <table class="default">
+            <tr>
+                <th>ヘッダ1</th>
+                <th>ヘッダ2</th>
+                <th>ヘッダ3</th>
+            </tr>
+            <tr>
+                <td>セル11</td>
+                <td>セル12</td>
+                <td>セル13</td>
+            </tr>
+            <tr>
+                <td>セル21</td>
+                <td>セル22</td>
+                <td>セル23</td>
+            </tr>
+            <tr>
+                <td>セル31</td>
+                <td>セル32</td>
+                <td>セル33</td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        const createTableFromJSON = JSONdata => {
+            // ヘッダー行を作成する
+            const headers = JSONdata['headers'];
+            //データ行を作成する
+            const data = JSONdata['data'];
+            //thを作成する
+            const headerRow = `<tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>`;
+            //tdの中身の部分を作成する
+            const dataRows = data.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('');
+            //thとtdを結合させてtableタグでくくる
+            const table = `<table>${headerRow}${dataRows}</table>`;
+            return table;
+        };
+
+        const fetchData = APIurl => {
+            //'https://script.google.com/macros/s/AKfycbyBrUGp12YkV2jdmBjJKqZkmEkIX_ti0nNr-_cZ4o2yk10FiBzqdISovTSuoDKz6ma9/exec'
+            fetch(APIurl)
+                .then(response => response.json())
+                .then(jsonData => {
+                    // tableタグの作成
+                    const tableHtml = createTableFromJSON(jsonData);
+                    //DOMで置き換え
+                    document.getElementById('table').innerHTML = tableHtml;
+                    document.getElementById('progress').textContent = "読み込み成功！";
+                })
+                .catch(error => {
+                    // エラー処理を行う
+                    console.log("失敗！");
+                    document.getElementById('progress').textContent = "読み込み失敗！";
+                });
+        };
+
+        const trigger = () => {
+            //進捗の更新
+            document.getElementById('progress').textContent = "読み込み中...";
+            APIurl = document.getElementById("Url").value;
+            fetchData(APIurl);
+        };
+    </script>
+</body>
+
+</html>
